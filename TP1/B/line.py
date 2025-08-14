@@ -37,7 +37,7 @@ def draw_line(x0, y0, x1, y1): #DDA Analizador de Direccion Digital
 
 
 #funcion para crear un canvas
-def new_canvas(width, height, backgroundColor = (0,255,0)):
+def new_canvas(width, height, backgroundColor = (9, 230, 230)):
     return [[backgroundColor for _ in range(width)] for _ in range(height)]
 
 
@@ -71,11 +71,35 @@ def save_ppm_p3(filename, canvas):
 
 
 # usando funciones
-canvas = new_canvas(10, 10)
+#canvas = new_canvas(31, 31)
 
-line = bresenham_line(0, 0, 7, 7)
-for x, y in line:
-    set_pixel(canvas, x, y)
+#line = bresenham_line(0, 0, 7, 7)
+#for x, y in line:
+    #set_pixel(canvas, x, y)
 
 #print_canvas(canvas)
-save_ppm_p3('miPrimeraLinea.ppm', canvas)
+#save_ppm_p3('miPrimeraLinea.ppm', canvas)
+
+# Canvas blanco de 60x60
+canvas = new_canvas(60, 60)
+
+# Marco exterior (cuadrado)
+for x, y in bresenham_line(10, 10, 49, 10):  # parte superior
+    set_pixel(canvas, x, y, (188, 72, 194))
+for x, y in bresenham_line(49, 10, 49, 49):  # lado derecho
+    set_pixel(canvas, x, y, (188, 72, 194))
+for x, y in bresenham_line(49, 49, 10, 49):  # parte inferior
+    set_pixel(canvas, x, y, (188, 72, 194))
+for x, y in bresenham_line(10, 49, 10, 10):  # lado izquierdo
+    set_pixel(canvas, x, y, (188, 72, 194))
+
+# Línea vertical del "+"
+for x, y in bresenham_line(29, 10, 29, 49):
+    set_pixel(canvas, x, y, (27, 125, 7))
+
+# Línea horizontal del "+"
+for x, y in bresenham_line(10, 29, 49, 29):
+    set_pixel(canvas, x, y, (27, 125, 7))
+
+# Guardar imagen
+save_ppm_p3("ventana.ppm", canvas)
