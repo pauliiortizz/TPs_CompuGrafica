@@ -8,11 +8,11 @@ from poligono import regular_polygon
 import math
 
 width = 400
-height = 400 # Tamaño de canvas/ventana
-color = (9, 150, 201) # Color de figuras
+height = 400 
+color = (9, 150, 201) 
 
-# 1) Crear el canvas lógico (array de píxeles) con WIDTH y HEIGHT, inicializado con fondo negro
-canvas_data = new_canvas(width, height, (255,255,255))
+
+canvas = new_canvas(width, height, (255,255,255))
 
 # Tkinter setup
 root = tk.Tk()
@@ -31,12 +31,20 @@ points = [] # Variable global de puntos
 # Copia el canvas lógico a la imagen Pillow y la refresca en Tkinter, para poder mantener la lógica de nuestros algoritmos.
 def redraw_canvas():
     global photo, img
-    pixels = [pix for row in canvas_data for pix in row]
+    pixels = [pix for row in canvas for pix in row]
     img = Image.new("RGB", (width, height))
     img.putdata(pixels)
     photo = ImageTk.PhotoImage(img)
     label.configure(image=photo)
     label.image = photo
+
+def erase_pixel(canvas, x, y, size=30):
+    bg_color = (255,255,255)  
+    offset = size // 2
+    for dx in range(-offset, offset+1):
+        for dy in range(-offset, offset+1):
+            set_pixel(canvas, x+dx, y+dy, bg_color)
+
 
 def on_click(event):
     global points
@@ -49,7 +57,7 @@ def on_click(event):
         x1,y1 = points[1]
         linea = bresenham_line(x0, y0, x1, y1)
         for (px,py) in linea:
-            set_pixel(canvas_data, px, py, color)
+            set_pixel(canvas, px, py, color)
         redraw_canvas()
         points = []
 
@@ -61,7 +69,7 @@ def on_click(event):
         for (a,b,c,d) in [(x0,y0,x1,y0), (x1,y0,x1,y1), (x1,y1,x0,y1), (x0,y1,x0,y0)]:
             lado = bresenham_line(a,b,c,d)
             for (px,py) in lado:
-                set_pixel(canvas_data, px, py, color)
+                set_pixel(canvas, px, py, color)
         redraw_canvas()
         points = []
 
@@ -72,7 +80,7 @@ def on_click(event):
         r = int(math.sqrt((x1-xc)**2 + (y1-yc)**2))
         circulo = middle_point_circle(xc,yc,r)
         for (px,py) in circulo:
-            set_pixel(canvas_data, px, py, color)
+            set_pixel(canvas, px, py, color)
         redraw_canvas()
         points = []
 
@@ -83,10 +91,11 @@ def on_click(event):
             x1,y1 = points[(i+1)%3]
             lado = bresenham_line(x0,y0,x1,y1)
             for (px,py) in lado:
-                set_pixel(canvas_data, px, py, color)
+                set_pixel(canvas, px, py, color)
         redraw_canvas()
         points = []
 
+    # --- Dibujar Polígono ---
     elif mode.get() == "poligono" and len(points) == 2:
         xc, yc = points[0]
         x1, y1 = points[1]
@@ -94,21 +103,30 @@ def on_click(event):
         n = 6  # por ejemplo hexágono fijo, o podés pedirlo con un input
         poligono = regular_polygon(xc, yc, r, n)
         for (px, py) in poligono:
-            set_pixel(canvas_data, px, py, color)
+            set_pixel(canvas, px, py, color)
         redraw_canvas()
         points = []
+    
+        
+    # --- Borrador ---
+    elif mode.get() == "borrador":
+        erase_pixel(canvas, x, y, size=10)  # tamaño ajustable
+        redraw_canvas()
+        points = []  # 🔑 vaciamos la lista de puntos para no interferir
+
+
 
 
 def save_image():
     filename = filedialog.asksaveasfilename(defaultextension=".png",
                                             filetypes=[("PNG files", "*.png")])
     if filename:
-        save_png(canvas_data, filename)
+        save_png(canvas, filename)
 
 # Botones de modo
 frame = tk.Frame(root)
 frame.pack()
-for m in [("Linea","linea"), ("Rectangulo","rect"), ("Circulo","circle"), ("Triangulo","triangulo"), ("Poligono", "poligono")]:
+for m in [("Linea","linea"), ("Rectangulo","rect"), ("Circulo","circle"), ("Triangulo","triangulo"), ("Poligono", "poligono"),("Borrador","borrador")]:
     b = tk.Radiobutton(frame, text=m[0], variable=mode, value=m[1])
     b.pack(side="left")
 
