@@ -1,0 +1,48 @@
+import pyglet
+import moderngl
+import numpy as np
+from pathlib import Path
+
+class Window(pyglet.window.Window):
+    def __init__(self):
+        super().__init__(640, 480, "TP3 - Strumia")
+        self.ctx = moderngl.create_context()
+
+        shader_dir = Path(__file__).parent / "shader"
+        with open(shader_dir / "vertex.glsl", "r", encoding="utf-8") as f:
+            vertex_shader_src = f.read()
+        with open(shader_dir / "fragment.glsl", "r", encoding="utf-8") as f:
+            fragment_shader_src = f.read()
+
+        self.prog = self.ctx.program(
+            vertex_shader=vertex_shader_src,
+            fragment_shader=fragment_shader_src
+        )
+
+        # Quad (TRIANGLE_STRIP): v0, v1, v2, v3
+        quad_points = [(-0.5,  0.5),
+                       (-0.5, -0.5),
+                       ( 0.5,  0.5),
+                       ( 0.5, -0.5)]
+
+        vertices = []
+        r, g, b = 1.0, 1.0, 1.0
+        for px, py in quad_points:
+            vertices.extend([px, py, r, g, b])
+
+        vertices_array = np.array(vertices, dtype="f4")
+        vbo = self.ctx.buffer(vertices_array.tobytes())
+
+        # Usa el program correcto y los nombres de atributos del shader
+        self.vao = self.ctx.vertex_array(
+            self.prog,
+            [(vbo, "2f 3f", "in_pos", "in_color")]
+        )
+
+    def on_draw(self):
+        self.clear()
+        self.ctx.clear(0.0, 0.0, 0.0, 1.0)
+        self.vao.render(mode=moderngl.TRIANGLE_STRIP)
+
+Window()
+pyglet.app.run()
