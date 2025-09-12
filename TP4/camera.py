@@ -1,14 +1,15 @@
+import glm
+
 class Camera:
-    def __init__(self):
-        self.position = (0, 0, 0)
-        self.orientation = (0, 0, 0)
-        self.fov = 60  # Field of view in degrees
+    def __init__(self, position = (0.0,0.0,-10.0), target = (0.0,0.0,0.0)):
+        self.position = position
+        self.target = target
+        self.up = (0.0, 1.0, 0.0)
 
-    def set_position(self, x, y, z):
-        self.position = (x, y, z)
-
-    def set_orientation(self, pitch, yaw, roll):
-        self.orientation = (pitch, yaw, roll)
-
-    def set_fov(self, fov):
-        self.fov = fov
+    @property
+    def view_matrix(self):
+        return glm.lookAt(self.position, self.target, self.up)
+    
+    @property
+    def projection_matrix(self):
+        return glm.perspective(glm.radians(45.0), 16/9, 0.1, 100.0)
