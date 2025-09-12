@@ -1,11 +1,12 @@
-from TP4.camera import Camera
-from TP4.light import Light
-from TP4.object import Object
+from camera import Camera
+from light import Light
+from object import Object
+
 class Scene:
     def __init__(self):
         self.objects = []
         self.camera = None
-        self.lights = None
+        self.light = None
         self.initial_time = 0 
     
     def create_camera(self):
@@ -18,7 +19,7 @@ class Scene:
         self.objects.append(object)
 
     def render(self, context):
-        for object in objects:
+        for object in self.objects:
             object.render()
 
 
