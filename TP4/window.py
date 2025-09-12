@@ -5,7 +5,7 @@ class Window(pyglet.window.Window):
     def __init__(self, width,height,title):
         super().__init__(width, height, title, resizable=True)
         self.context = moderngl.create_context()
-        self.scene = None
+        self.scene = None 
 
     def set_scene(self, scene):
         self.scene = scene
